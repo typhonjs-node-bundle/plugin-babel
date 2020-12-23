@@ -20,19 +20,6 @@ class PluginHandler
     */
    static onPluginLoad(ev)
    {
-      const eventbus = ev.eventbus;
-
-      let eventPrepend = '';
-
-      const options = ev.pluginOptions;
-
-      // Apply any plugin options.
-      if (typeof options === 'object')
-      {
-         // If `eventPrepend` is defined then it is prepended before all event bindings.
-         if (typeof options.eventPrepend === 'string') { eventPrepend = `${options.eventPrepend}:`; }
-      }
-
       // TODO: ADD EVENT REGISTRATION
       // eventbus.on(`${eventPrepend}test`, PluginHandler.test, PluginHandler);
    }
@@ -47,8 +34,15 @@ class PluginHandler
  */
 module.exports = async function(opts)
 {
-   process.pluginManager.add({ name: 'plugin-babel', instance: PluginHandler });
+   try
+   {
+      process.pluginManager.add({ name: 'plugin-babel', instance: PluginHandler });
 
-   // TODO REMOVE
-   process.stdout.write(`plugin-babel init hook running ${opts.id}\n`);
+      // TODO REMOVE
+      process.stdout.write(`plugin-babel init hook running ${opts.id}\n`);
+   }
+   catch (error)
+   {
+      this.error(error);
+   }
 };

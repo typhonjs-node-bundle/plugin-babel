@@ -36,7 +36,7 @@ module.exports = async function(opts)
 {
    try
    {
-      process.pluginManager.add({ name: 'plugin-babel', instance: PluginHandler });
+      global.$$pluginManager.add({ name: 'plugin-babel', instance: PluginHandler });
 
       // TODO REMOVE
       process.stdout.write(`plugin-babel init hook running ${opts.id}\n`);

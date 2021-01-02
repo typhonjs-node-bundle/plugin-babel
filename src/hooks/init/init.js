@@ -1,3 +1,7 @@
+const { babel } = require('@rollup/plugin-babel');
+
+const { flags }   = require('@oclif/command');
+
 /**
  * Handles interfacing with the plugin manager adding event bindings to pass back a configured
  * instance of `@rollup/plugin-babel` with `@babel/preset-env`.
@@ -5,9 +9,29 @@
 class PluginHandler
 {
    /**
-    * @returns {string}
+    * Returns the configured input plugin for `rollup-plugin-terser`
+    *
+    * @param {object} bundleData - The CLI config
+    * @param {object} bundleData.cliFlags - The CLI flags
+    *
+    * @returns {object} Rollup plugin
     */
-   static test() { return 'some testing'; }
+   static getInputPlugin(bundleData = {})
+   {
+      if (bundleData.cliFlags && bundleData.cliFlags.babel === true)
+      {
+         return babel({
+            babelHelpers: 'bundled',
+            presets: [
+               [require.resolve('@babel/preset-env'), {
+                  bugfixes: true,
+                  shippedProposals: true,
+                  targets: { esmodules: true }
+               }]
+            ]
+         });
+      }
+   }
 
    /**
     * Wires up PluginHandler on the plugin eventbus.
@@ -20,8 +44,7 @@ class PluginHandler
     */
    static onPluginLoad(ev)
    {
-      // TODO: ADD EVENT REGISTRATION
-      // eventbus.on(`${eventPrepend}test`, PluginHandler.test, PluginHandler);
+      ev.eventbus.on('typhonjs:oclif:bundle:plugins:main:input:get', PluginHandler.getInputPlugin, PluginHandler);
    }
 }
 
@@ -36,7 +59,10 @@ module.exports = async function(opts)
 {
    try
    {
-      global.$$pluginManager.add({ name: 'plugin-babel', instance: PluginHandler });
+      global.$$pluginManager.add({ name: '@typhonjs-node-rollup/plugin-babel', instance: PluginHandler });
+
+      // Adds flags for various built in commands like `bundle`.
+      s_ADD_FLAGS(opts.id);
 
       // TODO REMOVE
       process.stdout.write(`plugin-babel init hook running ${opts.id}\n`);
@@ -46,3 +72,36 @@ module.exports = async function(opts)
       this.error(error);
    }
 };
+
+/**
+ * Adds flags for various built in commands like `build`.
+ *
+ * @param {string} command - ID of the command being run.
+ */
+function s_ADD_FLAGS(command)
+{
+   switch (command)
+   {
+      // Add all built in flags for the build command.
+      case 'bundle':
+         global.$$eventbus.trigger('typhonjs:oclif:system:flaghandler:add', {
+            command,
+            plugin: 'plugin-babel',
+            flags: {
+               // By default compress is set to true, but if the environment variable `DEPLOY_COMPRESS` is defined as
+               // 'true' or 'false' that will determine the setting for compress.
+               babel: flags.boolean({
+                  'description': '[default: true] Use Babel to transpile latest JS to modern ES modules.',
+                  'allowNo': true,
+                  'default': function()
+                  {
+                     if (process.env.DEPLOY_BABEL === 'true') { return true; }
+
+                     return process.env.DEPLOY_BABEL !== 'false';
+                  }
+               })
+            }
+         });
+         break;
+   }
+}

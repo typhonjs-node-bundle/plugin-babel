@@ -14,11 +14,14 @@ class PluginHandler
     * @param {object} bundleData - The CLI config
     * @param {object} bundleData.cliFlags - The CLI flags
     *
+    * @param {object} currentBundle - The CLI config
+    * @param {object} bundleData.cliFlags - The CLI flags
+    *
     * @returns {object} Rollup plugin
     */
-   static getInputPlugin(bundleData = {})
+   static getInputPlugin(bundleData = {}, currentBundle = {})
    {
-      if (bundleData.cliFlags && bundleData.cliFlags.babel === true)
+      if (bundleData.cliFlags && bundleData.cliFlags.babel === true && currentBundle.inputType === 'javascript')
       {
          return babel({
             babelHelpers: 'bundled',

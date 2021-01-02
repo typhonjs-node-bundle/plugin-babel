@@ -1,9 +1,9 @@
 {
-  "name": "plugin-babel",
+  "name": "@typhonjs-node-rollup/plugin-babel",
   "description": "Provides an Oclif plugin to to configure @rollup/plugin-babel for rollup-runner.",
   "version": "0.0.0",
   "author": "typhonrt",
-  "bugs": "https://github.com/typhonjs-node-bundle/npmbundle/issues",
+  "bugs": "https://github.com/typhonjs-node-rollup/issues/issues",
   "dependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
@@ -31,7 +31,7 @@
     "/oclif.manifest.json",
     "/src"
   ],
-  "homepage": "https://github.com/typhonjs-node-bundle/plugin-babel",
+  "homepage": "https://github.com/typhonjs-node-rollup/plugin-babel",
   "keywords": [
     "oclif-plugin"
   ],
@@ -43,7 +43,7 @@
       ]
     }
   },
-  "repository": "typhonjs-node-bundle/plugin-babel",
+  "repository": "typhonjs-node-rollup/plugin-babel",
   "scripts": {
     "eslint": "eslint .",
     "postpack": "rm -f oclif.manifest.json",

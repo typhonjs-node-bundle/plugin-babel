@@ -67,8 +67,7 @@ module.exports = async function(opts)
       // Adds flags for various built in commands like `bundle`.
       s_ADD_FLAGS(opts.id);
 
-      // TODO REMOVE
-      process.stdout.write(`plugin-babel init hook running ${opts.id}\n`);
+      global.$$eventbus.trigger('log:debug', `plugin-babel init hook running '${opts.id}'.`);
    }
    catch (error)
    {

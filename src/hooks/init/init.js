@@ -1,6 +1,10 @@
-const { babel } = require('@rollup/plugin-babel');
+const { babel }      = require('@rollup/plugin-babel');
 
-const { flags }   = require('@oclif/command');
+const { flags }      = require('@oclif/command');
+
+const { FileUtil }   = require('@typhonjs-node-bundle/oclif-commons');
+
+const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
 
 /**
  * Handles interfacing with the plugin manager adding event bindings to pass back a configured
@@ -19,20 +23,31 @@ class PluginHandler
     *
     * @returns {object} Rollup plugin
     */
-   static getInputPlugin(bundleData = {}, currentBundle = {})
+   static async getInputPlugin(bundleData = {}, currentBundle = {})
    {
       if (bundleData.cliFlags && bundleData.cliFlags.babel === true && currentBundle.inputType === 'javascript')
       {
-         return babel({
-            babelHelpers: 'bundled',
-            presets: [
-               [require.resolve('@babel/preset-env'), {
-                  bugfixes: true,
-                  shippedProposals: true,
-                  targets: { esmodules: true }
-               }]
-            ]
-         });
+         const hasBabelConfig = await FileUtil.hasBabelConfig(global.$$bundler_origCWD, s_SKIP_DIRS);
+
+         if (hasBabelConfig)
+         {
+            global.$$eventbus.trigger('log:verbose', `plugin-babel: deferring to local Babel configuration file(s).`);
+
+            return babel({ babelHelpers: 'bundled' });
+         }
+         else
+         {
+            return babel({
+               babelHelpers: 'bundled',
+               presets: [
+                  [require.resolve('@babel/preset-env'), {
+                     bugfixes: true,
+                     shippedProposals: true,
+                     targets: { esmodules: true }
+                  }]
+               ]
+            });
+         }
       }
    }
 

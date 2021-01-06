@@ -49,18 +49,20 @@ class PluginLoader
          case 'bundle':
             eventbus.trigger('typhonjs:oclif:system:flaghandler:add', {
                command,
-               plugin: 'plugin-babel',
+               plugin: PluginLoader.pluginName,
                flags: {
-                  // By default compress is set to true, but if the environment variable `DEPLOY_COMPRESS` is defined as
-                  // 'true' or 'false' that will determine the setting for compress.
+                  // By default babel is set to true, but if the environment variable `{prefix}_BABEL` is defined as
+                  // 'true' or 'false' that will determine the setting for whether Babel is engaged.
                   babel: flags.boolean({
-                     'description': '[default: true] Use Babel to transpile latest JS to modern ES modules.',
+                     'description': '[default: true] Use Babel to transpile Javascript.',
                      'allowNo': true,
                      'default': function()
                      {
-                        if (process.env.DEPLOY_BABEL === 'true') { return true; }
+                        const envVar = `${global.$$flag_env_prefix}_BABEL`;
 
-                        return process.env.DEPLOY_BABEL !== 'false';
+                        if (process.env[envVar] === 'true') { return true; }
+
+                        return process.env[envVar] !== 'false';
                      }
                   })
                }

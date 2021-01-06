@@ -2,9 +2,18 @@ const { babel }      = require('@rollup/plugin-babel');
 
 const { flags }      = require('@oclif/command');
 
-const { FileUtil }   = require('@typhonjs-node-bundle/oclif-commons');
-
 const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
+
+const s_DEFAULT_CONFIG = {
+   babelHelpers: 'bundled',
+   presets: [
+      [require.resolve('@babel/preset-env'), {
+         bugfixes: true,
+         shippedProposals: true,
+         targets: { esmodules: true }
+      }]
+   ]
+};
 
 /**
  * Handles interfacing with the plugin manager adding event bindings to pass back a configured
@@ -75,27 +84,40 @@ class PluginLoader
    {
       if (bundleData.cliFlags && bundleData.cliFlags.babel === true && currentBundle.inputType === 'javascript')
       {
-         const hasBabelConfig = await FileUtil.hasBabelConfig(global.$$bundler_origCWD, s_SKIP_DIRS);
+         const config = await PluginLoader._loadConfig(bundleData.cliFlags);
 
-         if (hasBabelConfig)
-         {
-            global.$$eventbus.trigger('log:verbose', `plugin-babel: deferring to local Babel configuration file(s).`);
+         return babel(config);
+      }
+   }
 
-            return babel({ babelHelpers: 'bundled' });
-         }
-         else
-         {
-            return babel({
-               babelHelpers: 'bundled',
-               presets: [
-                  [require.resolve('@babel/preset-env'), {
-                     bugfixes: true,
-                     shippedProposals: true,
-                     targets: { esmodules: true }
-                  }]
-               ]
-            });
-         }
+   /**
+    * Attempt to load a local configuration file or provide the default configuration.
+    *
+    * @param {object} cliFlags - The CLI flags.
+    *
+    * @returns {object} Either the default Babel configuration or defer to locally provided configuration files.
+    * @private
+    */
+   static async _loadConfig(cliFlags)
+   {
+      if (typeof cliFlags['ignore-local-config'] === 'boolean' && cliFlags['ignore-local-config'])
+      {
+         return s_DEFAULT_CONFIG;
+      }
+
+      const hasBabelConfig = await global.$$eventbus.triggerAsync('typhonjs:oclif:system:file:util:config:babel:has',
+       global.$$bundler_origCWD, s_SKIP_DIRS);
+
+      if (hasBabelConfig)
+      {
+         global.$$eventbus.trigger('log:verbose',
+          `${PluginLoader.pluginName}: deferring to local Babel configuration file(s).`);
+
+         return { babelHelpers: 'bundled' };
+      }
+      else
+      {
+         return s_DEFAULT_CONFIG;
       }
    }
 

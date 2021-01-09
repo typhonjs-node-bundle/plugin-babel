@@ -4,6 +4,9 @@ const { flags }      = require('@oclif/command');
 
 const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
 
+const s_PACKAGE_NAME = '@typhonjs-node-rollup/plugin-babel';
+const s_CONFLICT_PACKAGES = ['@rollup/plugin-babel'];
+
 const s_DEFAULT_CONFIG = {
    babelHelpers: 'bundled',
    presets: [
@@ -22,53 +25,46 @@ const s_DEFAULT_CONFIG = {
 class PluginLoader
 {
    /**
+    * Returns the any modules that cause a conflict.
+    *
+    * @returns {string[]}
+    */
+   static get conflictPackages() { return s_CONFLICT_PACKAGES; }
+
+   /**
     * Returns the `package.json` module name.
     *
     * @returns {string}
     */
-   static get pluginName() { return '@typhonjs-node-rollup/plugin-babel'; }
-
-   /**
-    * Returns the rollup plugins managed.
-    *
-    * @returns {string[]}
-    */
-   static get rollupPlugins() { return ['@rollup/plugin-babel']; }
+   static get packageName() { return s_PACKAGE_NAME; }
 
    /**
     * Adds flags for various built in commands like `build`.
     *
-    * @param {string} command - ID of the command being run.
     * @param {object} eventbus - The eventbus to add flags to.
     */
-   static addFlags(command, eventbus)
+   static addFlags(eventbus)
    {
-      switch (command)
-      {
-         // Add all built in flags for the build command.
-         case 'bundle':
-            eventbus.trigger('typhonjs:oclif:system:flaghandler:add', {
-               command,
-               plugin: PluginLoader.pluginName,
-               flags: {
-                  // By default babel is set to true, but if the environment variable `{prefix}_BABEL` is defined as
-                  // 'true' or 'false' that will determine the setting for whether Babel is engaged.
-                  babel: flags.boolean({
-                     'description': '[default: true] Use Babel to transpile Javascript.',
-                     'allowNo': true,
-                     'default': function()
-                     {
-                        const envVar = `${global.$$flag_env_prefix}_BABEL`;
+      eventbus.trigger('typhonjs:oclif:system:flaghandler:add', {
+         command: 'bundle',
+         pluginName: PluginLoader.packageName,
+         flags: {
+            // By default babel is set to true, but if the environment variable `{prefix}_BABEL` is defined as
+            // 'true' or 'false' that will determine the setting for whether Babel is engaged.
+            babel: flags.boolean({
+               'description': '[default: true] Use Babel to transpile Javascript.',
+               'allowNo': true,
+               'default': function()
+               {
+                  const envVar = `${global.$$flag_env_prefix}_BABEL`;
 
-                        if (process.env[envVar] === 'true') { return true; }
+                  if (process.env[envVar] === 'true') { return true; }
 
-                        return process.env[envVar] !== 'false';
-                     }
-                  })
+                  return process.env[envVar] !== 'false';
                }
-            });
-            break;
-      }
+            })
+         }
+      });
    }
 
    /**
@@ -113,7 +109,7 @@ class PluginLoader
       if (hasBabelConfig)
       {
          global.$$eventbus.trigger('log:verbose',
-          `${PluginLoader.pluginName}: deferring to local Babel configuration file(s).`);
+          `${PluginLoader.packageName}: deferring to local Babel configuration file(s).`);
 
          return { babelHelpers: 'bundled' };
       }
@@ -136,7 +132,7 @@ class PluginLoader
    {
       ev.eventbus.on('typhonjs:oclif:bundle:plugins:main:input:get', PluginLoader.getInputPlugin, PluginLoader);
 
-      PluginLoader.addFlags(ev.pluginOptions.id, ev.eventbus);
+      PluginLoader.addFlags(ev.eventbus);
    }
 }
 

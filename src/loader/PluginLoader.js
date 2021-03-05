@@ -2,6 +2,10 @@ import { babel }  from '@rollup/plugin-babel';
 
 import { flags }  from '@oclif/command';
 
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
 
 const s_PACKAGE_NAME = '@typhonjs-node-rollup/plugin-babel';

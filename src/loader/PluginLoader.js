@@ -1,8 +1,8 @@
-import { babel }  from '@rollup/plugin-babel';
+import { babel }           from '@rollup/plugin-babel';
 
-import { flags }  from '@oclif/command';
+import { flags }           from '@oclif/command';
 
-import { createRequire } from 'module';
+import { createRequire }   from 'module';
 
 const require = createRequire(import.meta.url);
 

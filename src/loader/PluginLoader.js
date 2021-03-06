@@ -58,13 +58,18 @@ export default class PluginLoader
             babel: flags.boolean({
                'description': '[default: true] Use Babel to transpile Javascript.',
                'allowNo': true,
-               'default': function()
+               'default': function(envVars = process.env)
                {
                   const envVar = `${global.$$flag_env_prefix}_BABEL`;
 
-                  if (process.env[envVar] === 'true') { return true; }
+                  let defaultValue = true;
 
-                  return process.env[envVar] !== 'false';
+                  if (envVar in envVars && envVars[envVar] !== 'true')
+                  {
+                     defaultValue = false;
+                  }
+
+                  return defaultValue;
                }
             })
          }

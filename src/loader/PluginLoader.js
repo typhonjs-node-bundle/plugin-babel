@@ -58,8 +58,9 @@ export default class PluginLoader
             babel: flags.boolean({
                'description': '[default: true] Use Babel to transpile Javascript.',
                'allowNo': true,
-               'default': function(envVars = process.env)
+               'default': function(context)
                {
+                  const envVars = context === null ? {} : process.env;
                   const envVar = `${global.$$flag_env_prefix}_BABEL`;
 
                   let defaultValue = true;
@@ -137,10 +138,12 @@ export default class PluginLoader
     *
     * @ignore
     */
-   static onPluginLoad(ev)
+   static async onPluginLoad(ev)
    {
       ev.eventbus.on('typhonjs:oclif:bundle:plugins:main:input:get', PluginLoader.getInputPlugin, PluginLoader);
 
-      PluginLoader.addFlags(ev.eventbus);
+      const flags = await import(ev.pluginOptions.flagsModule);
+
+      PluginLoader.addFlags(ev.eventbus, flags);
    }
 }

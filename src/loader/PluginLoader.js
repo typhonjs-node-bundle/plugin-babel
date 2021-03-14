@@ -61,7 +61,7 @@ export default class PluginLoader
                'default': function(context)
                {
                   const envVars = context === null ? {} : process.env;
-                  const envVar = `${global.$$cli_env_prefix}_BABEL`;
+                  const envVar = `${globalThis.$$cli_env_prefix}_BABEL`;
 
                   let defaultValue = true;
 
@@ -113,12 +113,12 @@ export default class PluginLoader
          return s_DEFAULT_CONFIG;
       }
 
-      const hasBabelConfig = await global.$$eventbus.triggerAsync('typhonjs:oclif:system:file:util:config:babel:has',
-       global.$$bundler_origCWD, s_SKIP_DIRS);
+      const hasBabelConfig = await globalThis.$$eventbus.triggerAsync(
+       'typhonjs:oclif:system:file:util:config:babel:has', globalThis.$$bundler_origCWD, s_SKIP_DIRS);
 
       if (hasBabelConfig)
       {
-         global.$$eventbus.trigger('log:verbose',
+         globalThis.$$eventbus.trigger('log:verbose',
           `${PluginLoader.packageName}: deferring to local Babel configuration file(s).`);
 
          return { babelHelpers: 'bundled' };

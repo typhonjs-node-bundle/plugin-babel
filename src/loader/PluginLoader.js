@@ -145,5 +145,12 @@ export default class PluginLoader
       const flags = await import(ev.pluginOptions.flagsModule);
 
       PluginLoader.addFlags(ev.eventbus, flags);
+
+      // Add a filter to exclude any errors generating from Babel so the calling code is highlighted.
+      ev.eventbus.trigger('typhonjs:util:error:parser:filter:add', {
+         type: 'exclusive',
+         name: '@babel',
+         filterString: '@babel'
+      });
    }
 }

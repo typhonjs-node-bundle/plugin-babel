@@ -11,15 +11,18 @@ const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
 const s_PACKAGE_NAME = '@typhonjs-node-rollup/plugin-babel';
 const s_CONFLICT_PACKAGES = ['@rollup/plugin-babel'];
 
-const s_DEFAULT_CONFIG = {
-   babelHelpers: 'bundled',
-   presets: [
-      [require.resolve('@babel/preset-env'), {
-         bugfixes: true,
-         shippedProposals: true,
-         targets: { esmodules: true }
-      }]
-   ]
+const s_DEFAULT_CONFIG = () =>
+{
+   return {
+      babelHelpers: 'bundled',
+      presets: [
+         [require.resolve('@babel/preset-env'), {
+            bugfixes: true,
+            shippedProposals: true,
+            targets: { esmodules: true }
+         }]
+      ]
+   };
 };
 
 /**
@@ -110,7 +113,7 @@ export default class PluginLoader
    {
       if (typeof cliFlags['ignore-local-config'] === 'boolean' && cliFlags['ignore-local-config'])
       {
-         return s_DEFAULT_CONFIG;
+         return s_DEFAULT_CONFIG();
       }
 
       const hasBabelConfig = await globalThis.$$eventbus.triggerAsync(
@@ -125,7 +128,7 @@ export default class PluginLoader
       }
       else
       {
-         return s_DEFAULT_CONFIG;
+         return s_DEFAULT_CONFIG();
       }
    }
 

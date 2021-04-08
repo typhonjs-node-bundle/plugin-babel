@@ -1,12 +1,13 @@
 import { babel }           from '@rollup/plugin-babel';
 
-import { flags }           from '@oclif/command';
-
 import { createRequire }   from 'module';
 
 const require = createRequire(import.meta.url);
 
-const s_SKIP_DIRS = ['deploy', 'dist', 'node_modules'];
+const s_BABEL_CONFIG = new Set(['.babelrc', '.babelrc.cjs', '.babelrc.js', '.babelrc.mjs', '.babelrc.json',
+ 'babel.config.cjs', 'babel.config.js', 'babel.config.json', 'babel.config.mjs']);
+
+const s_SKIP_DIRS = new Set(['deploy', 'dist', 'node_modules']);
 
 const s_PACKAGE_NAME = '@typhonjs-node-rollup/plugin-babel';
 const s_CONFLICT_PACKAGES = ['@rollup/plugin-babel'];
@@ -49,10 +50,12 @@ export default class PluginLoader
     * Adds flags for various built in commands like `build`.
     *
     * @param {object} eventbus - The eventbus to add flags to.
+    *
+    * @param {object} flags - The Oclif flags module.
     */
-   static addFlags(eventbus)
+   static addFlags(eventbus, flags)
    {
-      eventbus.trigger('typhonjs:oclif:system:flaghandler:add', {
+      eventbus.trigger('typhonjs:oclif:handler:flag:add', {
          command: 'bundle',
          pluginName: PluginLoader.packageName,
          flags: {
@@ -116,8 +119,11 @@ export default class PluginLoader
          return s_DEFAULT_CONFIG();
       }
 
-      const hasBabelConfig = await globalThis.$$eventbus.triggerAsync(
-       'typhonjs:oclif:system:file:util:config:babel:has', globalThis.$$bundler_origCWD, s_SKIP_DIRS);
+      const hasBabelConfig = await globalThis.$$eventbus.triggerAsync('typhonjs:util:file:file:has', {
+         dir: globalThis.$$bundler_origCWD,
+         fileList: s_BABEL_CONFIG,
+         skipDir: s_SKIP_DIRS
+      });
 
       if (hasBabelConfig)
       {
@@ -135,7 +141,7 @@ export default class PluginLoader
    /**
     * Wires up PluginHandler on the plugin eventbus.
     *
-    * @param {PluginEvent} ev - The plugin event.
+    * @param {object} ev - PluginEvent - The plugin event.
     *
     * @see https://www.npmjs.com/package/typhonjs-plugin-manager
     *

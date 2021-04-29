@@ -13,7 +13,7 @@ export default async function(options)
    {
       globalThis.$$eventbus.trigger('log:debug', `plugin-babel init hook running '${options.id}'.`);
 
-      await globalThis.$$pluginManager.addAsync({ name: PluginLoader.packageName, instance: PluginLoader,
+      await globalThis.$$pluginManager.add({ name: PluginLoader.packageName, instance: PluginLoader,
        options: { id: options.id, flagsModule: options.flagsModule } });
    }
    catch (error)

@@ -9,8 +9,8 @@ const s_BABEL_CONFIG = new Set(['.babelrc', '.babelrc.cjs', '.babelrc.js', '.bab
 
 const s_SKIP_DIRS = new Set(['deploy', 'dist', 'node_modules']);
 
-const s_PACKAGE_NAME = '@typhonjs-node-rollup/plugin-babel';
 const s_CONFLICT_PACKAGES = ['@rollup/plugin-babel'];
+const s_PACKAGE_NAME = '@typhonjs-oclif-rollup/plugin-babel';
 
 const s_DEFAULT_CONFIG = () =>
 {
@@ -55,7 +55,7 @@ export default class PluginLoader
     */
    static addFlags(eventbus, flags)
    {
-      eventbus.trigger('typhonjs:oclif:handler:flag:add', {
+      eventbus.trigger('typhonjs:oclif:system:handler:flag:add', {
          command: 'bundle',
          pluginName: PluginLoader.packageName,
          flags: {
@@ -84,7 +84,7 @@ export default class PluginLoader
    }
 
    /**
-    * Returns the configured input plugin for `rollup-plugin-terser`
+    * Returns the configured input plugin for `@rollup/plugin-babel`.
     *
     * @param {object} bundleData - The CLI config
     * @param {object} bundleData.cliFlags - The CLI flags
@@ -156,7 +156,7 @@ export default class PluginLoader
       PluginLoader.addFlags(ev.eventbus, flags);
 
       // Add a filter to exclude any errors generating from Babel so the calling code is highlighted.
-      ev.eventbus.trigger('typhonjs:util:error:parser:filter:add', {
+      ev.eventbus.trigger('typhonjs:utils:error:parser:filter:add', {
          type: 'exclusive',
          name: '@babel',
          filterString: '@babel'

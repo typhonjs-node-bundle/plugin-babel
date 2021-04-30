@@ -119,7 +119,7 @@ export default class PluginLoader
          return s_DEFAULT_CONFIG();
       }
 
-      const hasBabelConfig = await globalThis.$$eventbus.triggerAsync('typhonjs:util:file:file:has', {
+      const hasBabelConfig = await globalThis.$$eventbus.triggerAsync('typhonjs:utils:file:file:has', {
          dir: globalThis.$$bundler_origCWD,
          fileList: s_BABEL_CONFIG,
          skipDir: s_SKIP_DIRS

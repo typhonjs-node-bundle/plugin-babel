@@ -1,4 +1,4 @@
-import { babel }           from '@rollup/plugin-babel';
+import PB                  from '@rollup/plugin-babel';
 
 import { createRequire }   from 'module';
 
@@ -100,7 +100,7 @@ export default class PluginLoader
       {
          const config = await PluginLoader._loadConfig(bundleData.cliFlags);
 
-         return babel(config);
+         return PB.babel(config);
       }
    }
 

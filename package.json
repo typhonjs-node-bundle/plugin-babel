@@ -1,7 +1,7 @@
 {
   "name": "@typhonjs-oclif-rollup/plugin-babel",
   "description": "Provides an Oclif plugin to to configure @rollup/plugin-babel for rollup-runner.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "type": "module",
   "main": "src/loader/PluginLoader.js",
